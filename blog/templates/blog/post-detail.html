@@ -1,0 +1,97 @@
+{% extends "base.html" %} 
+{% load static %} 
+
+{% block title %} 
+    This Post Title 
+{% endblock %} 
+
+{% block css_file %} 
+    {% comment %} <link rel="stylesheet" href="{% static 'blog/post-detail.css' %}" />  {% endcomment %}
+    <link rel='stylesheet' href = '{% static "blog/post-detail.css" %}' />
+{% endblock %} 
+
+{% block content %}
+    <section id="summary">
+    <h2>{{ post.title }}</h2>
+    <div style='margin-top:20px'>
+        {% for caption in post_captions %}
+            <span style='background: white; color:#390281; padding: 5px;border-radius:10px;'>{{caption}}</span>
+        {% endfor%}
+    </div>
+
+    <div id="read-later" style="margin:2rem 0;">
+        <form action="{% url "read-later" %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" value="{{post.id}}" name="post_id" >
+            <button 
+                style="background:transparent; 
+                        cursor: pointer;color:white; 
+                        border: 1px solid white;
+                        padding:08 0.5rem"
+                        >
+                        {% if saved_for_later %}
+                            Remove from Read-Later
+                        {%else%}
+                            Read-Later
+                        {%endif%}
+                    
+                    
+                    </button>
+        </form>
+    </div>
+
+    <article>
+        <img src="{{ post.image_name.url }}" alt={{post.title}} />
+        <address>~<a style='text-decoration: none; color:white' id='email-a' href ="mailto:{{post.author.author_email}}" >{{ post.author }}</a></address>
+        <div>Last updated on <time>{{ post.date }}</time></div>
+    </article>
+    </section>
+
+    <main>
+    <p>
+        {{ post.excerpt }}
+    </p>
+    <p>
+        {{ post.content }}
+    </p>
+    </main>
+
+    <section 
+            id="comments" 
+            style="margin: 3rem auto;
+            width: 90%;
+            max-width: 90rem;
+            border-radius: 12px;
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+            padding: 1rem;"
+            >
+        <h4 style="text-align:center;margin-bottom:1rem;border-bottom:3px solid black">Comments of this Post</h4>
+        <ul class="comments-list" style="list-style:none;">
+            {% for comment in comments %}
+                <li style="border-bottom:1px solid grey;">
+                    <h5>~{{comment.user_name}}</h6></h5>
+                    {% comment %} <h2>{{comment.user_email}}</h2> {% endcomment %}
+                    <h6 style="color:grey;padding-left:1rem">{{comment.text|linebreaks}}</h6>
+
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section id="comment-form">
+        <h2>Your Comment</h2>
+        <form method="post" action ="{% url "post-detail-page" post.slug %}">
+            {%csrf_token%}
+            {%for form_field in comment_form%}
+                <div class="form-control">
+                    {{form_field.label_tag}}
+                    {{form_field}}
+                    {{form_field.errors}}
+                </div>
+            {%endfor%}
+            <button>Save Comment</button>
+        </form>
+        
+    </section>
+{% endblock %}
